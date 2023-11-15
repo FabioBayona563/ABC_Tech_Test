@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>CRUD Flask</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            width: 50%;
+            margin: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px #aaa;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .actions {
+            text-align: center;
+        }
+
+        .actions button {
+            margin: 5px;
+        }
+    
+    </style>
+<script>
+
+
+    function modificarPersonaje(ID_Personaje) {
+    var formData = {
+        'Nombre': document.getElementById(`Nombre_${ID_Personaje}`).value,
+        'Edad': document.getElementById(`Edad_${ID_Personaje}`).value,
+        'Ocupacion': document.getElementById(`Ocupacion_${ID_Personaje}`).value,
+        'Relacion': document.getElementById(`Relacion_${ID_Personaje}`).value
+    };
+
+    fetch(`/Personajes/${ID_Personaje}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        // Actualiza la página después de modificar
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+    function eliminarPersonaje(ID_Personaje) {
+    fetch(`/Personajes/${ID_Personaje}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        // Actualiza la página después de eliminar
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function registrarPersonaje() {
+    var formData = {
+        'ID_Personaje': document.getElementById('ID_Personaje').value,
+        'Nombre': document.getElementById('Nombre').value,
+        'Edad': document.getElementById('Edad').value,
+        'Ocupacion': document.getElementById('Ocupacion').value,
+        'Relacion': document.getElementById('Relacion').value
+    };
+
+    fetch('/Personajes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        // Actualiza la página después de registrar
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+</script>
+
+</head>
+<body>
+    <h1>CRUD - Personajes - SIMPSONS</h1>
+
+    <h2>Registrar Personaje</h2>
+    <form id="registroForm" action="/Personajes" method="POST">
+        <label>ID_Personaje:</label>
+        <input type="number" id="ID_Personaje" name="ID_Personaje" required><br>
+    
+        <label>Nombre:</label>
+        <input type="text" id="Nombre" name="Nombre" required><br>
+    
+        <label>Edad:</label>
+        <input type="text" id="Edad" name="Edad" required><br>
+    
+        <label>Ocupación:</label>
+        <input type="text" id="Ocupacion" name="Ocupacion" required><br>
+    
+        <label>Relación:</label>
+        <input type="text" id="Relacion" name="Relacion" required><br>
+
+        <label for="imagen">Seleccionar Imagen:</label>
+        <input type="file" id="imagen" name="imagen" accept="image/*" required disabled>
+    
+        <button type="submit" class="btn btn-primary" onclick="registrarPersonaje()">Registrar</button>
+    </form>
+
+
+    <h2>Listar Personajes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID_Personaje</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Ocupacion</th>
+                <th>Relacion</th>
+                <th>Imágen</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in data %}
+            <tr>
+                <td>{{d.ID_Personaje}}</td>
+                <td><input type="text" id="Nombre_{{d.ID_Personaje}}" value="{{d.Nombre}}"></td>
+                <td><input type="number" id="Edad_{{d.ID_Personaje}}" value="{{d.Edad}}"></td>
+                <td><input type="text" id="Ocupacion_{{d.ID_Personaje}}" value="{{d.Ocupacion}}"></td>
+                <td><input type="text" id="Relacion_{{d.ID_Personaje}}" value="{{d.Relacion}}"></td>
+                <td><img src="" alt="Imagen a ser cargada"></td>
+                <td>
+                    <button class="btn btn-warning" onclick="modificarPersonaje('{{d.ID_Personaje}}')">Modificar</button>
+                    <p></p>
+                    <button class="btn btn-danger" onclick="eliminarPersonaje('{{d.ID_Personaje}}')">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</body>
+</html>
